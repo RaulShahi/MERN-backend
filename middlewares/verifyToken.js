@@ -1,0 +1,19 @@
+const HttpError = require("../models/http-error");
+const jwt = require("jsonwebtoken");
+const User = require("../models/users-model");
+
+exports.verifyToken = async (req, res, next) => {
+  const token = req.headers["x-access-token"];
+  if (!token) {
+    return next(new HttpError("A token is required for authentication.", 401));
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.user_id);
+    req.user = user;
+  } catch (err) {
+    return next(new HttpError("Invalid Token", 401));
+  }
+  next();
+};
