@@ -6,13 +6,13 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 exports.getAllUsers = async (req, res, next) => {
-  const users = await User.find({});
+  const users = await User.find({}).populate("places");
   if (!users || users.length < 1) {
     return next(new HttpError("No users registered"));
   }
-  res
-    .status(200)
-    .json({ users: users.map((user) => user.toObject({ getters: true })) });
+  res.status(200).json({
+    users: users.map((user) => user.toObject({ getters: true })),
+  });
 };
 
 exports.deleteUser = async (req, res, next) => {

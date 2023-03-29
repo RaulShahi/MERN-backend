@@ -12,6 +12,15 @@ const userSchema = new Schema({
   token: String,
 });
 
+userSchema.set("toObject", { virtuals: true });
+userSchema.set("toJSON", { virtuals: true });
+
+userSchema.virtual("places", {
+  ref: "Place",
+  localField: "_id",
+  foreignField: "creator",
+});
+
 userSchema.pre("save", function (next) {
   if (this.password && this.isModified("password")) {
     this.password = encryptPassword(this.password, 10);
