@@ -4,11 +4,13 @@ const User = require("../models/users-model");
 
 exports.getAllPlaces = async (req, res, next) => {
   try {
-    const places = await Place.find({});
+    const places = await Place.find({}).populate("creator");
     if (!places || places.length < 1) {
       return next(new HttpError("No places added yet.", 400));
     }
-    res.status(200).json({ places });
+    res.status(200).json({
+      places: places.map((place) => place.toObject({ getters: true })),
+    });
   } catch (err) {
     return next(new HttpError(err, 500));
   }
@@ -49,15 +51,19 @@ exports.getPlacesByUserId = async (req, res, next) => {
 };
 
 exports.createPlace = async (req, res, next) => {
-  const { title, description, coordinates, address } = req.body;
-  const creator = req.user._id;
+  const { title, description, address, creator } = req.body;
+  // const creator = req.user._id;
+
+  if (!(title && description && address && creator)) {
+    return next(new HttpError("All information is required.", 500));
+  }
 
   const newPlace = new Place({
     title,
     description,
     image:
-      "https://media1.s-nbcnews.com/i/streams/2013/September/130905/8C8856378-130905-burj-khalifa-9a.jpg",
-    location: coordinates,
+      "https://lh3.googleusercontent.com/p/AF1QipNVlM5lo7fIJrmvjN4EOrTMiQjDgDyTfw7ATdV6=s680-w680-h510",
+    location: { lat: 0, lng: 0 },
     address,
     creator,
   });
@@ -78,31 +84,35 @@ exports.createPlace = async (req, res, next) => {
 
 exports.updatePlace = async (req, res, next) => {
   const pid = req.params.pid;
+  console.log({ pid });
   const user = req.user;
   const { title, description } = req.body;
   try {
-    const selectedPlace = await Place.findById(pid).populate("creator");
+    const selectedPlace = await Place.findById(pid.toString()).populate(
+      "creator"
+    );
     if (!selectedPlace) {
       return next(new HttpError("Place with the provided id not found", 404));
     }
-    if (
-      !(
-        user.isAdmin ||
-        user._id.toString() === selectedPlace.creator._id.toString()
-      )
-    ) {
-      return next(
-        new HttpError(
-          "Place can only be updated by the admin or the creator.",
-          400
-        )
-      );
-    }
+    // if (
+    //   !(
+    //     user.isAdmin ||
+    //     user._id.toString() === selectedPlace.creator._id.toString()
+    //   )
+    // ) {
+    //   return next(
+    //     new HttpError(
+    //       "Place can only be updated by the admin or the creator.",
+    //       400
+    //     )
+    //   );
+    // }
     selectedPlace.title = title;
     selectedPlace.description = description;
     const updatedPlace = await selectedPlace.save();
     res.status(201).json({ place: updatedPlace.toObject({ getters: true }) });
   } catch (err) {
+    console.log(err);
     return next(new HttpError(err, 500));
   }
 };
@@ -112,24 +122,24 @@ exports.deletePlace = async (req, res, next) => {
   const user = req.user;
   try {
     const selectedPlace = await Place.findById(pid).populate("creator");
-    if (!selectedPlace) {
-      return next(
-        new HttpError("Could not find the place with provided id", 404)
-      );
-    }
-    if (
-      !(
-        user.isAdmin ||
-        user._id.toString() === selectedPlace.creator._id.toString()
-      )
-    ) {
-      return next(
-        new HttpError(
-          "Place can only be deleted by the admin or the creator.",
-          404
-        )
-      );
-    }
+    // if (!selectedPlace) {
+    //   return next(
+    //     new HttpError("Could not find the place with provided id", 404)
+    //   );
+    // }
+    // if (
+    //   !(
+    //     user.isAdmin ||
+    //     user._id.toString() === selectedPlace.creator._id.toString()
+    //   )
+    // ) {
+    //   return next(
+    //     new HttpError(
+    //       "Place can only be deleted by the admin or the creator.",
+    //       404
+    //     )
+    //   );
+    // }
     await Place.findByIdAndRemove(pid);
     res.status(202).json({ message: "Place deleted succesfully." });
   } catch (err) {

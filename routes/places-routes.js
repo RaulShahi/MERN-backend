@@ -7,13 +7,13 @@ const router = express.Router();
 
 router
   .route("/")
-  .post(verifyToken, placeController.createPlace)
+  .post(placeController.createPlace)
   .get(placeController.getAllPlaces);
 router.get("/user/:uid", placeController.getPlacesByUserId);
 router
   .route("/:pid")
   .get(placeController.getPlaceById)
-  .patch(verifyToken, placeController.updatePlace)
-  .delete(verifyToken, placeController.deletePlace);
+  .patch(placeController.updatePlace)
+  .delete(placeController.deletePlace);
 
 module.exports = router;

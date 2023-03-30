@@ -115,7 +115,7 @@ exports.loginUser = async (req, res, next) => {
         { expiresIn: "2h" }
       );
       user.token = token;
-      return res.status(200).json({ user: user });
+      return res.status(200).json({ user: user.toObject({ getters: true }) });
     } else {
       return next(new HttpError("Invalid credentials", 400));
     }
