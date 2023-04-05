@@ -3,6 +3,9 @@ const morgan = require("morgan");
 require("dotenv").config();
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const fs = require("fs");
+const path = require("path");
+
 const HttpError = require("./models/http-error");
 
 const placeRoutes = require("./routes/places-routes");
@@ -37,12 +40,19 @@ mongoose
 app.use("/api/places", placeRoutes);
 app.use("/api/users", userRoutes);
 
+app.use("/uploads/images", express.static(path.join("uploads", "images")));
+
 app.use((req, res, next) => {
   const error = new HttpError("Could not find this route", 404);
   throw error;
 });
 
 app.use((error, req, res, next) => {
+  if (req.file) {
+    fs.unlink(req.file.path, (err, succ) => {
+      console.log(err);
+    });
+  }
   if (res.headerSent) {
     return next(error);
   }

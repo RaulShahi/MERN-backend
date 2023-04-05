@@ -1,3 +1,4 @@
+const fs = require("fs");
 const HttpError = require("../models/http-error");
 const Place = require("../models/places-model");
 const User = require("../models/users-model");
@@ -61,8 +62,7 @@ exports.createPlace = async (req, res, next) => {
   const newPlace = new Place({
     title,
     description,
-    image:
-      "https://lh3.googleusercontent.com/p/AF1QipNVlM5lo7fIJrmvjN4EOrTMiQjDgDyTfw7ATdV6=s680-w680-h510",
+    image: req.file.path,
     location: { lat: 0, lng: 0 },
     address,
     creator,
@@ -122,11 +122,12 @@ exports.deletePlace = async (req, res, next) => {
   const user = req.user;
   try {
     const selectedPlace = await Place.findById(pid).populate("creator");
-    // if (!selectedPlace) {
-    //   return next(
-    //     new HttpError("Could not find the place with provided id", 404)
-    //   );
-    // }
+    const imagePath = selectedPlace.image;
+    if (!selectedPlace) {
+      return next(
+        new HttpError("Could not find the place with provided id", 404)
+      );
+    }
     // if (
     //   !(
     //     user.isAdmin ||
@@ -141,6 +142,9 @@ exports.deletePlace = async (req, res, next) => {
     //   );
     // }
     await Place.findByIdAndRemove(pid);
+    fs.unlink(imagePath, (err, succ) => {
+      console.log(err);
+    });
     res.status(202).json({ message: "Place deleted succesfully." });
   } catch (err) {
     return next(new HttpError(err, 404));
