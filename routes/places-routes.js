@@ -8,13 +8,13 @@ const router = express.Router();
 
 router
   .route("/")
-  .post(fileUpload.single("image"), placeController.createPlace)
+  .post(verifyToken, fileUpload.single("image"), placeController.createPlace)
   .get(placeController.getAllPlaces);
 router.get("/user/:uid", placeController.getPlacesByUserId);
 router
   .route("/:pid")
   .get(placeController.getPlaceById)
-  .patch(placeController.updatePlace)
-  .delete(placeController.deletePlace);
+  .patch(verifyToken, placeController.updatePlace)
+  .delete(verifyToken, placeController.deletePlace);
 
 module.exports = router;
