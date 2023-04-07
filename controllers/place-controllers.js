@@ -52,8 +52,8 @@ exports.getPlacesByUserId = async (req, res, next) => {
 };
 
 exports.createPlace = async (req, res, next) => {
-  const { title, description, address, creator } = req.body;
-  // const creator = req.user._id;
+  const { title, description, address } = req.body;
+  const creator = req.user._id;
 
   if (!(title && description && address && creator)) {
     return next(new HttpError("All information is required.", 500));
@@ -84,7 +84,6 @@ exports.createPlace = async (req, res, next) => {
 
 exports.updatePlace = async (req, res, next) => {
   const pid = req.params.pid;
-  console.log({ pid });
   const user = req.user;
   const { title, description } = req.body;
   try {
@@ -94,19 +93,19 @@ exports.updatePlace = async (req, res, next) => {
     if (!selectedPlace) {
       return next(new HttpError("Place with the provided id not found", 404));
     }
-    // if (
-    //   !(
-    //     user.isAdmin ||
-    //     user._id.toString() === selectedPlace.creator._id.toString()
-    //   )
-    // ) {
-    //   return next(
-    //     new HttpError(
-    //       "Place can only be updated by the admin or the creator.",
-    //       400
-    //     )
-    //   );
-    // }
+    if (
+      !(
+        user.isAdmin ||
+        user._id.toString() === selectedPlace.creator._id.toString()
+      )
+    ) {
+      return next(
+        new HttpError(
+          "Place can only be updated by the admin or the creator.",
+          401
+        )
+      );
+    }
     selectedPlace.title = title;
     selectedPlace.description = description;
     const updatedPlace = await selectedPlace.save();
@@ -128,19 +127,19 @@ exports.deletePlace = async (req, res, next) => {
         new HttpError("Could not find the place with provided id", 404)
       );
     }
-    // if (
-    //   !(
-    //     user.isAdmin ||
-    //     user._id.toString() === selectedPlace.creator._id.toString()
-    //   )
-    // ) {
-    //   return next(
-    //     new HttpError(
-    //       "Place can only be deleted by the admin or the creator.",
-    //       404
-    //     )
-    //   );
-    // }
+    if (
+      !(
+        user.isAdmin ||
+        user._id.toString() === selectedPlace.creator._id.toString()
+      )
+    ) {
+      return next(
+        new HttpError(
+          "Place can only be deleted by the admin or the creator.",
+          404
+        )
+      );
+    }
     await Place.findByIdAndRemove(pid);
     fs.unlink(imagePath, (err, succ) => {
       console.log(err);
