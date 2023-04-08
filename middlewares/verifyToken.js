@@ -16,7 +16,7 @@ exports.verifyToken = async (req, res, next) => {
     const user = await User.findById(decoded.user_id);
     req.user = user;
   } catch (err) {
-    return next(new HttpError("Invalid Token", 401));
+    return next(new HttpError("Invalid Token", 403));
   }
   next();
 };

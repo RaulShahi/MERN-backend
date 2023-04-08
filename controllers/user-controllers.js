@@ -31,7 +31,7 @@ exports.deleteUser = async (req, res, next) => {
       return next(
         new HttpError(
           "Failed to delete. User with provided id does not exist.",
-          404
+          401
         )
       );
     }
@@ -102,7 +102,7 @@ exports.loginUser = async (req, res, next) => {
 
     if (!user) {
       return next(
-        new HttpError("Account doesn't exist. Please register.", 409)
+        new HttpError("Account doesn't exist. Please register.", 403)
       );
     }
 
@@ -116,7 +116,7 @@ exports.loginUser = async (req, res, next) => {
       user.token = token;
       return res.status(200).json({ user: user.toObject({ getters: true }) });
     } else {
-      return next(new HttpError("Invalid credentials", 401));
+      return next(new HttpError("Invalid credentials", 403));
     }
   } catch (err) {
     return next(new HttpError(err, 500));

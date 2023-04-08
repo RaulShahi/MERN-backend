@@ -136,7 +136,7 @@ exports.deletePlace = async (req, res, next) => {
       return next(
         new HttpError(
           "Place can only be deleted by the admin or the creator.",
-          404
+          401
         )
       );
     }
