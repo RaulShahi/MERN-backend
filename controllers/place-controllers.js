@@ -111,7 +111,6 @@ exports.updatePlace = async (req, res, next) => {
     const updatedPlace = await selectedPlace.save();
     res.status(201).json({ place: updatedPlace.toObject({ getters: true }) });
   } catch (err) {
-    console.log(err);
     return next(new HttpError(err, 500));
   }
 };
