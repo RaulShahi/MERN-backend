@@ -28,7 +28,7 @@ app.use((req, res, next) => {
 
 mongoose
   .connect(
-    `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PW}@cluster0.moqyz4g.mongodb.net/mern?retryWrites=true&w=majority`
+    `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PW}@cluster0.moqyz4g.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
   )
   .then(
     app.listen(process.env.PORT, (err, succ) => {
