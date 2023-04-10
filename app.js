@@ -16,6 +16,8 @@ app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+const PORT = process.env.PORT || 5000;
+
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
@@ -31,7 +33,7 @@ mongoose
     `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PW}@cluster0.moqyz4g.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
   )
   .then(
-    app.listen(process.env.PORT, (err, succ) => {
+    app.listen(PORT, (err, succ) => {
       console.log(`Connected to db.Server running on port ${process.env.PORT}`);
     })
   )
